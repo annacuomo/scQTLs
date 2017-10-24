@@ -1,0 +1,13 @@
+Package: scQTLs
+Type: Package
+Title: Useful Functions For Variance And Other QTL Analyses Using Single Cell RNA-Seq
+Version: 1.0
+Date: 2017-10-24
+Author: Anna Cuomo
+Maintainer: Anna Cuomo <acuomo@ebi.ac.uk> 
+Imports: rhdf5, graphics
+Description: More details about what the package does. See
+           <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file> for
+           details on how to write this part.
+License: GPL (>= 2)
+RoxygenNote: 6.0.1
