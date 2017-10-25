@@ -146,6 +146,7 @@ PlotInteraction <- function(interaction.file, geno.file.prefix, gene, snp){
 #' One gene, one SNP, coloured by donor
 #' 
 #' @export
+#' @import cowplot
 #' @param interaction.file interaction file containing interaction factor & gene expression
 #' @param geno.file.prefix genotype file, per chromosome
 #' @param gene gene of interest
