@@ -186,6 +186,7 @@ MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, s
   samples <- genotypes.info[[2]]
   #interaction
   fact <- GetInteractionFactor(interaction.file)
+  #dataframe
   df = data.frame(fact = fact, expr = y, genotypes = geno, samples = samples)
   df
 }
@@ -194,15 +195,15 @@ MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, s
 #' @param geno.file.prefix prefix of hdf5 file containing genotype information
 #' @param chrom chromosome of interest
 #' @param snp SNP of interest
-GetGenotypes <- function(geno.file.prefix,chrom,snp){
-  myfile <- paste0(geno.file.prefix,chrom,".h5")
+GetGenotypes <- function(geno.file.prefix, chrom, snp){
+  myfile <- paste0(geno.file.prefix, chrom, ".h5")
   genos <- h5read(myfile, name = "genotypes")
   samples <- h5read(myfile, name = "sampleID")
   snps <- h5read(myfile, name = "gdid")
   rownames(genos) <- snps
   colnames(genos) <- samples
   H5close()
-  geno <- as.numeric(geno[snp,])
+  geno <- as.numeric(genos[snp,])
   list(geno,samples)
 }
 #' Get Expression
