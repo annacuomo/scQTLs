@@ -135,7 +135,7 @@ PlotQQ <- function(results.df) {
 PlotInteraction <- function(interaction.file, geno.file.prefix, gene, snp){
   interaction.df <- MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
   # plot
-  ggplot(interaction.df,aes_string(x = fact, y = expr, colour = as.factor(genotypes))) +
+  ggplot(interaction.df,aes(x = fact, y = expr, colour = as.factor(genotypes))) +
     geom_point() + 
     geom_smooth(method = "lm") +
     facet_wrap(~as.factor(genotypes), nrow = 1) + 
