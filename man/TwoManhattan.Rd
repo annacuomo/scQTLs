@@ -7,9 +7,9 @@
 TwoManhattan(results.dfs, gene.name, gene.info.file, snp.name = "")
 }
 \arguments{
-\item{results.dfs}{list of dataframes containing results, needs SNP p-values and positions}
+\item{results.dfs}{list of dataframes containing results, all need SNP p-values and positions}
 
-\item{gene.name}{gene name for which we want the Manhattan}
+\item{gene.name}{gene of interest}
 
 \item{gene.info.file}{hdf5 file containing gene information}
 

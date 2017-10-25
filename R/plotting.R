@@ -8,7 +8,7 @@
 #' @param gene.name gene name for which we want the Manhattan 
 #' @param gene.info.file hdf5 file containing gene information
 #' @param snp.name SNP of interest within the Manhattan plot (optional)
-OneManhattan <- function(results.df, gene.name, gene.info.file,snp.name='') {
+OneManhattan <- function(results.df, gene.name, gene.info.file, snp.name = '') {
   res <- MakeManhattanDataFrame(results.df, gene.name, gene.info.file)
   chrom <- res[1,]$chrom
   # get best p-value to adjust ylim 
@@ -27,7 +27,7 @@ OneManhattan <- function(results.df, gene.name, gene.info.file,snp.name='') {
   points(x = snp.pos, -log10(res[res$pos == snp.pos,]$p_value), pch = 23, 
          cex = 1.8, col = "firebrick", bg="red")
   abline(v = snp.pos, col = "firebrick")
-  segments(x0 = snp.pos, y0 = 0, x1 = snp.pos, y1 = 30, col = "firebrick")
+  segments(x0 = snp.pos, y0 = -0.2, x1 = snp.pos, y1 = y.max+y.max*0.2, col = "firebrick")
   # add gene position
   gene.start <- res$gene_start
   gene.end <- res$gene_end
@@ -60,10 +60,10 @@ MakeManhattanDataFrame <- function(results.df, gene.name, gene.info.file) {
 GetGenePosition <- function(gene.name, gene.info.file) {
   gene_info <- rhdf5::h5read(gene.info.file, name = "gene_info")
   geneID <- rhdf5::h5read(gene.info.file, name = "geneID")
-  gene.start <- gene_info$start_position[geneID==gene.name]
-  gene.end <- gene_info$end_position[geneID==gene.name]
+  gene.start <- gene_info$start_position[geneID == gene.name]
+  gene.end <- gene_info$end_position[geneID == gene.name]
   H5close()
-  list(gene.start,gene.end)
+  list(gene.start, gene.end)
 }
 
 #' Generates overlapping Manhattan plots for two or more sets of results
@@ -71,31 +71,31 @@ GetGenePosition <- function(gene.name, gene.info.file) {
 #' One gene, comparison between two or more types of analysis
 #'
 #' @export
-#' @param results.dfs list of dataframes containing results, needs SNP p-values and positions
-#' @param gene.name gene name for which we want the Manhattan 
+#' @param results.dfs list of dataframes containing results, all need SNP p-values and positions
+#' @param gene.name gene of interest 
 #' @param gene.info.file hdf5 file containing gene information
 #' @param snp.name SNP of interest within the Manhattan plot (optional)
-TwoManhattan <- function(results.dfs, gene.name, gene.info.file,snp.name='') {
+TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='') {
   res1 <- MakeManhattanDataFrame(results.dfs[[1]], gene.name, gene.info.file)
   res2 <- MakeManhattanDataFrame(results.dfs[[2]], gene.name, gene.info.file)
   chrom <- res1[1,]$chrom
   # get best p-value to adjust ylim 
-  best.pv <- min(min(res1$p_value),min(res2$p_value))
+  best.pv <- min(min(res1$p_value), min(res2$p_value))
   y.max <- -log10(best.pv)
   bottom.rect <- -y.max/4
   top.rect <- bottom.rect + y.max/7
   # plot first Mannhattan
-  plot(res1$pos, -log10(res1$p_value), main = paste0(gene.name,", ",snp.name), 
+  plot(res1$pos, -log10(res1$p_value), main = paste0(gene.name, ", ", snp.name), 
        xlab = paste0("position on chromosome ",chrom), ylab = "-log10(pvalue)",
-       frame.plot=FALSE, cex = 0.6, ylim = c(bottom.rect, y.max), col = "cornflowerblue")
+       frame.plot = FALSE, cex = 0.6, ylim = c(bottom.rect, y.max), col = "cornflowerblue")
   # plot second Mannhattan
-  points(res2$pos, -log10(res2$p_value),col = "black",cex=0.6)
+  points(res2$pos, -log10(res2$p_value),col = "black",cex = 0.6)
   # add axes
   axis(side = 2)
   snp.pos <- res1[res1$gdid == snp.name,]$pos
   # add line and diamond shape at SNP of interest
   points(x = snp.pos, -log10(res1[res1$pos == snp.pos,]$p_value), pch = 23, 
-         cex = 1.8, col = "firebrick", bg="red")
+         cex = 1.8, col = "firebrick", bg = "red")
   segments(x0 = snp.pos, y0 = -0.2, x1 = snp.pos, y1 = y.max+y.max*0.2, col = "firebrick")
   # add gene position
   gene.start <- res1$gene_start
@@ -110,16 +110,16 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file,snp.name='') {
 #' @param results.df dataframe containing results, needs SNP p-values and permutations
 PlotQQ <- function(results.df) {
   # plot qqplot
-  x = sort(-log10(runif(dim(results.df)[1],min=0,max=1)))
+  x = sort(-log10(runif(dim(results.df)[1], min = 0, max = 1)))
   y1 = sort(-log10(results.df$p_value))
   plot(x, y1, xlab = "-log10(expected pvalues)", ylab = "-log10(observed pvalues)",
-       frame.plot=FALSE, cex = 0.6, col = "cornflowerblue")
+       frame.plot = FALSE, cex = 0.6, col = "cornflowerblue")
   # add axes
   axis(side = 2)
   # add permutation qqplot
   y2 = sort(-log10(results.df$permutation_0))
   points(x , y2, cex = 0.6, col = "black")
-  lines(x = c(0,7), y = c(0,7),col='firebrick')
+  lines(x = c(0,7), y = c(0,7), col='firebrick')
 }
 
 #' Generates an interaction plot
@@ -137,7 +137,7 @@ PlotInteraction <- function(interaction.file, geno.file.prefix, gene, snp){
   ggplot(interaction.df,aes_string(x = fact, y = expr, colour = as.factor(genotypes))) +
     geom_point() + 
     geom_smooth(method = "lm") +
-    facet_wrap(~as.factor(genotypes),nrow=1) + 
+    facet_wrap(~as.factor(genotypes), nrow = 1) + 
     theme_classic()
 }
 #' Generates an interaction plot highlighting donor effect
@@ -216,7 +216,7 @@ GetExpression <- function(expr.file, gene, resids = TRUE){
   genes <- h5read(expr.file, name = "geneID")
   samples <- h5read(expr.file, name = "sampleID")
   gene.info <- h5read(expr.file, name = "gene_info")
-  chrom <- gene.info$chromosome_name[genes==gene]
+  chrom <- gene.info$chromosome_name[genes == gene]
   colnames(exprs) <- samples
   rownames(exprs) <- genes
   H5close()
@@ -227,13 +227,13 @@ GetExpression <- function(expr.file, gene, resids = TRUE){
 #' @export
 #' @param interaction.file file containing expression and interaction values
 GetInteractionFactor <- function(interaction.file){
+  samples <- h5read(interaction.file, name = "sampleID")
   design <- h5read(interaction.file, name = "design")
   H5close()
   colnames(design) <- samples
-  rownames(design) <- c("Intercept","% explained by top 500 festures","# detected genes","# detected genes squared",paste0("PC",1:10),"fact")
+  rownames(design) <- c("Intercept", "%explained by top 500 feats", "#detected genes", "#detected genes squared", paste0("PC",1:10), "fact")
   design <-t(design)
   design <- as.data.frame(design)
   fact <- as.numeric(design$fact)
   fact
 }
-
