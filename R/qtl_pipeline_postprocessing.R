@@ -12,7 +12,6 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
   observed.features <- 0
   results <- NULL
   files.to.read <- list.files(results.folder,pattern = "qtl_results.*h5", full.names = T)
-  print(files.to.read[1])
   for ( i in files.to.read ) {
     tmp <- h5dump(file = i)
     if ( length(tmp) > 0 ) {
@@ -77,7 +76,7 @@ MergePerms <- function(results.folder, multiple.testing.global = "ST"){
 #' @param snp.info.df dataframe containing snp info, e.g. rsID
 #' @param multiple.testing.global method, can be BF (Bonferroni) or ST (Storey) 
 MergeGeneInfo <- function(results.folder, gene.names.df, snp.info.df, multiple.testing.global = "ST"){
-  results.perm <- MergePerms(results.folder, multiple.testing.global = "ST", significance.threshold = 0.1)
+  results.perm <- MergePerms(results.folder, multiple.testing.global = "ST")
   results.genes <- left_join(gene.names.df, results.perm, by = "feature")
   results.snp.info <- inner_join(results.genes, snp.info.df, by = c("chrom", "pos","assoc_gene"))
   results.snp.info
