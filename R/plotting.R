@@ -149,8 +149,9 @@ PlotInteraction <- function(interaction.file, geno.file.prefix, gene, snp){
 #' @param geno.file.prefix genotype file, per chromosome
 #' @param gene gene of interest
 #' @param snp SNP of interest  
-PlotInteractionSamples <- function(interaction.file, geno.file.prefix, gene, snp){
-  df <- MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
+#' @param resids default true, plotting residuals after regressing out covariates
+PlotInteractionSamples <- function(interaction.file, geno.file.prefix, gene, snp, resids = TRUE){
+  df <- MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp, resids = TRUE)
   # plot
   plot.homoref <-  ggplot(df[df$genotypes == 0,],aes(x = fact, y = expr, colour = samples)) +
     geom_point(aes(shape=as.factor(genotypes))) + 
@@ -175,9 +176,10 @@ PlotInteractionSamples <- function(interaction.file, geno.file.prefix, gene, snp
 #' @param geno.file.prefix genotype file, per chromosome
 #' @param gene gene of interest
 #' @param snp SNP of interest
-MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, snp){
+#' @param resids default true, plotting residuals after regressing out covariates
+MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, snp, resids = TRUE){
   #expression
-  gene.info <- GetExpression(interaction.file, gene)
+  gene.info <- GetExpression(interaction.file, gene, resids = TRUE)
   y <- gene.info[[1]]
   chrom <- gene.info[[2]]
   #genotypes
@@ -197,9 +199,9 @@ MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, s
 #' @param snp SNP of interest
 GetGenotypes <- function(geno.file.prefix, chrom, snp){
   myfile <- paste0(geno.file.prefix, chrom, ".h5")
-  genos <- h5read(myfile, name = "genotypes")
-  samples <- h5read(myfile, name = "sampleID")
-  snps <- h5read(myfile, name = "gdid")
+  genos <- rhdf5::h5read(myfile, name = "genotypes")
+  samples <- rhdf5::h5read(myfile, name = "sampleID")
+  snps <- rhdf5::h5read(myfile, name = "gdid")
   rownames(genos) <- snps
   colnames(genos) <- samples
   H5close()
@@ -210,12 +212,13 @@ GetGenotypes <- function(geno.file.prefix, chrom, snp){
 #' @export
 #' @param expr.file file containing expression and interaction values
 #' @param gene gene of interest
+#' @param resids default true, plotting residuals after regressing out covariates
 GetExpression <- function(expr.file, gene, resids = TRUE){
-  if(resids == TRUE){exprs <- h5read(expr.file, name = "exprs_resids")}
-  else{exprs <- h5read(expr.file, name = "exprs")}
-  genes <- h5read(expr.file, name = "geneID")
-  samples <- h5read(expr.file, name = "sampleID")
-  gene.info <- h5read(expr.file, name = "gene_info")
+  if(resids == TRUE){exprs <- rhdf5::h5read(expr.file, name = "exprs_resids")}
+  else{exprs <- rhdf5::h5read(expr.file, name = "exprs")}
+  genes <- rhdf5::h5read(expr.file, name = "geneID")
+  samples <- rhdf5::h5read(expr.file, name = "sampleID")
+  gene.info <- rhdf5::h5read(expr.file, name = "gene_info")
   chrom <- gene.info$chromosome_name[genes == gene]
   colnames(exprs) <- samples
   rownames(exprs) <- genes
@@ -227,8 +230,8 @@ GetExpression <- function(expr.file, gene, resids = TRUE){
 #' @export
 #' @param interaction.file file containing expression and interaction values
 GetInteractionFactor <- function(interaction.file){
-  samples <- h5read(interaction.file, name = "sampleID")
-  design <- h5read(interaction.file, name = "design")
+  samples <- rhdf5::h5read(interaction.file, name = "sampleID")
+  design <- rhdf5::h5read(interaction.file, name = "design")
   H5close()
   colnames(design) <- samples
   rownames(design) <- c("Intercept", "%explained by top 500 feats", "#detected genes", "#detected genes squared", paste0("PC",1:10), "fact")

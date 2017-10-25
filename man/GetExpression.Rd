@@ -10,6 +10,8 @@ GetExpression(expr.file, gene, resids = TRUE)
 \item{expr.file}{file containing expression and interaction values}
 
 \item{gene}{gene of interest}
+
+\item{resids}{default true, plotting residuals after regressing out covariates}
 }
 \description{
 Get Expression

@@ -4,7 +4,8 @@
 \alias{MakeInteractionDataFrame}
 \title{Make dataframe for Interaction plots}
 \usage{
-MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
+MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp,
+  resids = TRUE)
 }
 \arguments{
 \item{interaction.file}{interaction file containing int factor and expression}
@@ -14,6 +15,8 @@ MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
 \item{gene}{gene of interest}
 
 \item{snp}{SNP of interest}
+
+\item{resids}{default true, plotting residuals after regressing out covariates}
 }
 \description{
 Make dataframe for Interaction plots

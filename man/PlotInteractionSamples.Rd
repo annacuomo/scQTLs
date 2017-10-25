@@ -4,7 +4,8 @@
 \alias{PlotInteractionSamples}
 \title{Generates an interaction plot highlighting donor effect}
 \usage{
-PlotInteractionSamples(interaction.file, geno.file.prefix, gene, snp)
+PlotInteractionSamples(interaction.file, geno.file.prefix, gene, snp,
+  resids = TRUE)
 }
 \arguments{
 \item{interaction.file}{interaction file containing interaction factor & gene expression}
@@ -14,6 +15,8 @@ PlotInteractionSamples(interaction.file, geno.file.prefix, gene, snp)
 \item{gene}{gene of interest}
 
 \item{snp}{SNP of interest}
+
+\item{resids}{default true, plotting residuals after regressing out covariates}
 }
 \description{
 One gene, one SNP, coloured by donor
