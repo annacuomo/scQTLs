@@ -3,6 +3,7 @@
 export(GetGenePosition)
 export(MakeManhattanDataFrame)
 export(OneManhattan)
+export(PlotQQ)
 export(TwoManhattan)
 import(graphics)
 import(rhdf5)

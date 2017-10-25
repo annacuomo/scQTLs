@@ -102,3 +102,21 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file,snp.name='') {
   gene.end <- res1$gene_end
   rect(gene.start, bottom.rect, gene.end, top.rect, col = "forestgreen", border = "forestgreen")
 }
+#' Generates the qq plot for one set of results
+#' All genes, one type of analysis
+#' @export
+#' @import graphics
+#' @param results.df dataframe containing results, needs SNP p-values and permutations
+PlotQQ <- function(results.df) {
+  # plot qqplot
+  x = sort(-log10(runif(dim(results.df)[1],min=0,max=1)))
+  y1 = sort(-log10(results.df$p_value))
+  plot(x, y1, xlab = "-log10(expected pvalues)", ylab = "-log10(observed pvalues)",
+       frame.plot=FALSE, cex = 0.6, col = "cornflowerblue")
+  # add axes
+  axis(side = 2)
+  # add permutation qqplot
+  y2 = sort(-log10(results.df$permutation_0))
+  points(x , y2, cex = 0.6, col = "black")
+  lines(x = c(0,7), y = c(0,7),col='firebrick')
+}
