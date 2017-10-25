@@ -12,11 +12,9 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
   observed.features <- 0
   results <- NULL
   files.to.read <- list.files(results.folder,pattern = "qtl_results.*h5", full.names = T)
+  print(files.to.read[1])
   for ( i in files.to.read ) {
-    base.name <- gsub(gsub(i, pattern = ".h5", replacement = ""), pattern = "./qtl_results", replacement = "")
-    if ( length(list.files("./",pattern = base.name)) == 3 | length(list.files("./",pattern = base.name)) == 4 ) {
-      tmp <- h5dump(file = i)
-    } 
+    tmp <- h5dump(file = i)
     if ( length(tmp) > 0 ) {
       for ( j in names(tmp) ) { tmp[[j]][["feature"]] <- j }
       observed.features = observed.features + length(tmp)
@@ -48,10 +46,7 @@ GetPerms <- function(results.folder) {
   perms <- NULL
   files.to.read <- list.files(results.folder,pattern = "perm_results.*h5", full.names = T)
   for ( i in files.to.read ) {
-    base.name <- gsub(gsub(i, pattern = ".h5", replacement = ""), pattern = "./perm_results", replacement = "")
-    if ( length(list.files("./",pattern = base.name)) == 3 | length(list.files("./",pattern = base.name)) == 4 ) {
-      tmp <- h5dump(file = i)
-    } 
+    tmp <- h5dump(file = i)
     if ( length(tmp) > 0 ) {
       for (j in names(tmp)) { tmp[[j]][["feature"]] <- j }
       observed.features = observed.features + length(tmp)
