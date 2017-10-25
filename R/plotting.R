@@ -36,7 +36,7 @@ OneManhattan <- function(results.df, gene.name, gene.info.file,snp.name='') {
 
 #' Make dataframe for Manhattan plots
 #' 
-#' @export 
+#' @export
 #' @param results.df dataframe containing results for all genes
 #' @param gene.name gene name for which we want the Manhattan 
 #' @param gene.info.file hdf5 file containing gene information
@@ -53,7 +53,7 @@ MakeManhattanDataFrame <- function(results.df, gene.name, gene.info.file) {
 #' 
 #' add gene start and gene end to dataframe for Manhattan plots
 #' 
-#' @export 
+#' @export
 #' @import rhdf5
 #' @param gene.name gene name for which we want the Manhattan 
 #' @param gene.info.file hdf5 file containing gene information   
@@ -103,6 +103,7 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file,snp.name='') {
   rect(gene.start, bottom.rect, gene.end, top.rect, col = "forestgreen", border = "forestgreen")
 }
 #' Generates the qq plot for one set of results
+#' 
 #' All genes, one type of analysis
 #' @export
 #' @import graphics
@@ -120,3 +121,118 @@ PlotQQ <- function(results.df) {
   points(x , y2, cex = 0.6, col = "black")
   lines(x = c(0,7), y = c(0,7),col='firebrick')
 }
+
+#' Generates an interaction plot
+#' 
+#' One gene, one SNP
+#' 
+#' @export
+#' @param interaction.file interaction file containing interaction factor & gene expression
+#' @param geno.file.prefix genotype file, per chromosome
+#' @param gene gene of interest
+#' @param snp SNP of interest  
+PlotInteraction <- function(interaction.file, geno.file.prefix, gene, snp){
+  interaction.df <- MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
+  # plot
+  ggplot(interaction.df,aes_string(x = fact, y = expr, colour = as.factor(genotypes))) +
+    geom_point() + 
+    geom_smooth(method = "lm") +
+    facet_wrap(~as.factor(genotypes),nrow=1) + 
+    theme_classic()
+}
+#' Generates an interaction plot highlighting donor effect
+#' 
+#' One gene, one SNP, coloured by donor
+#' 
+#' @export
+#' @param interaction.file interaction file containing interaction factor & gene expression
+#' @param geno.file.prefix genotype file, per chromosome
+#' @param gene gene of interest
+#' @param snp SNP of interest  
+PlotInteractionSamples <- function(interaction.file, geno.file.prefix, gene, snp){
+  df <- MakeInteractionDataFrame(interaction.file, geno.file.prefix, gene, snp)
+  # plot
+  plot.homoref <-  ggplot(df[df$genotypes == 0,],aes(x = fact, y = expr, colour = samples)) +
+    geom_point(aes(shape=as.factor(genotypes))) + 
+    geom_smooth(method = "lm", aes(group = 1)) +
+    theme_classic() +
+    theme(legend.position="none")
+  plot.hetero <-  ggplot(df[df$genotypes == 1,],aes(x = fact, y = expr, colour = samples)) +
+    geom_point() + 
+    geom_smooth(method = "lm", aes(group = 1)) +
+    theme_classic() +
+    theme(legend.position="none")
+  plot.homoalt <-  ggplot(df[df$genotypes == 2,],aes(x = fact, y = expr, colour = samples)) +
+    geom_point() + 
+    geom_smooth(method = "lm", aes(group = 1)) +
+    theme_classic() +
+    theme(legend.position="none")
+  plot_grid(plot.homoref, plot.hetero, plot.homoalt, align = "h", labels = c("  homo_ref","   hetero","  homo_alt"), ncol = 3)    
+}
+#' Make dataframe for Interaction plots
+#' @export
+#' @param interaction.file interaction file containing int factor and expression
+#' @param geno.file.prefix genotype file, per chromosome
+#' @param gene gene of interest
+#' @param snp SNP of interest
+MakeInteractionDataFrame <- function(interaction.file, geno.file.prefix, gene, snp){
+  #expression
+  gene.info <- GetExpression(interaction.file, gene)
+  y <- gene.info[[1]]
+  chrom <- gene.info[[2]]
+  #genotypes
+  genotypes.info <- GetGenotypes(geno.file.prefix, chrom, snp)
+  geno <- genotypes.info[[1]]
+  samples <- genotypes.info[[2]]
+  #interaction
+  fact <- GetInteractionFactor(interaction.file)
+  df = data.frame(fact = fact, expr = y, genotypes = geno, samples = samples)
+  df
+}
+#' Get genotypes
+#' @export
+#' @param geno.file.prefix prefix of hdf5 file containing genotype information
+#' @param chrom chromosome of interest
+#' @param snp SNP of interest
+GetGenotypes <- function(geno.file.prefix,chrom,snp){
+  myfile <- paste0(geno.file.prefix,chrom,".h5")
+  genos <- h5read(myfile, name = "genotypes")
+  samples <- h5read(myfile, name = "sampleID")
+  snps <- h5read(myfile, name = "gdid")
+  rownames(genos) <- snps
+  colnames(genos) <- samples
+  H5close()
+  geno <- as.numeric(geno[snp,])
+  list(geno,samples)
+}
+#' Get Expression
+#' @export
+#' @param expr.file file containing expression and interaction values
+#' @param gene gene of interest
+GetExpression <- function(expr.file, gene, resids = TRUE){
+  if(resids == TRUE){exprs <- h5read(expr.file, name = "exprs_resids")}
+  else{exprs <- h5read(expr.file, name = "exprs")}
+  genes <- h5read(expr.file, name = "geneID")
+  samples <- h5read(expr.file, name = "sampleID")
+  gene.info <- h5read(expr.file, name = "gene_info")
+  chrom <- gene.info$chromosome_name[genes==gene]
+  colnames(exprs) <- samples
+  rownames(exprs) <- genes
+  H5close()
+  y <- as.numeric(exprs[gene,])
+  list(y,chrom)
+}
+#' Get Interaction Term
+#' @export
+#' @param interaction.file file containing expression and interaction values
+GetInteractionFactor <- function(interaction.file){
+  design <- h5read(interaction.file, name = "design")
+  H5close()
+  colnames(design) <- samples
+  rownames(design) <- c("Intercept","% explained by top 500 festures","# detected genes","# detected genes squared",paste0("PC",1:10),"fact")
+  design <-t(design)
+  design <- as.data.frame(design)
+  fact <- as.numeric(design$fact)
+  fact
+}
+

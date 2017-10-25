@@ -2,8 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{PlotQQ}
 \alias{PlotQQ}
-\title{Generates the qq plot for one set of results
-All genes, one type of analysis}
+\title{Generates the qq plot for one set of results}
 \usage{
 PlotQQ(results.df)
 }
@@ -11,6 +10,5 @@ PlotQQ(results.df)
 \item{results.df}{dataframe containing results, needs SNP p-values and permutations}
 }
 \description{
-Generates the qq plot for one set of results
 All genes, one type of analysis
 }
