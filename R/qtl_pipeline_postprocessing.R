@@ -34,6 +34,11 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
     results$global_corr_p_value[results$global_corr_p_value > 1] <- 1
   }
   results <- results[order(results$global_corr_p_value, decreasing = F),]
+  snp_info = as_data_frame(do.call("rbind", lapply(strsplit(results$snp_id, "_"), function(x) t(as.data.frame(x)))))
+  colnames(snp_info) = c("chrom","pos","ref_allele","alt_allele")
+  results = cbind(results,snp_info)
+  results$chrom = as.integer(results$chrom)
+  results$pos = as.integer(results$pos)
   results
 }
 
