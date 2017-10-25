@@ -127,6 +127,7 @@ PlotQQ <- function(results.df) {
 #' One gene, one SNP
 #' 
 #' @export
+#' @import ggplot2
 #' @param interaction.file interaction file containing interaction factor & gene expression
 #' @param geno.file.prefix genotype file, per chromosome
 #' @param gene gene of interest
