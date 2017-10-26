@@ -4,7 +4,7 @@
 \alias{PlotQQ}
 \title{Generates the qq plot for one set of results}
 \usage{
-PlotQQ(results.df, col = c("corflowerblue", "black"))
+PlotQQ(results.df, col = c("cornflowerblue", "black"))
 }
 \arguments{
 \item{results.df}{dataframe containing results, needs SNP p-values and permutations}

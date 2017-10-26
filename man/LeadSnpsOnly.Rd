@@ -4,17 +4,10 @@
 \alias{LeadSnpsOnly}
 \title{Only save top lead per gene - optionally only significant}
 \usage{
-LeadSnpsOnly(results.folder, gene.names.df, snp.info.df,
-  multiple.testing.global = "ST", significance.threshold = 1)
+LeadSnpsOnly(results.df, significance.threshold = 1)
 }
 \arguments{
-\item{results.folder}{full path to folder where results are stored}
-
-\item{gene.names.df}{dataframe containing snp info, e.g. rsID}
-
-\item{snp.info.df}{dataframe containing snp info, e.g. rsID}
-
-\item{multiple.testing.global}{method, can be BF (Bonferroni) or ST (Storey)}
+\item{results.df}{dataframe containing results}
 
 \item{significance.threshold}{at global level (optional)}
 }

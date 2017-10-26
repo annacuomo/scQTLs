@@ -108,7 +108,7 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='', co
 #' @export
 #' @import graphics
 #' @param results.df dataframe containing results, needs SNP p-values and permutations
-PlotQQ <- function(results.df,  col = c("corflowerblue","black")) {
+PlotQQ <- function(results.df,  col = c("cornflowerblue","black")) {
   # plot qqplot
   x = sort(-log10(runif(dim(results.df)[1], min = 0, max = 1)))
   y1 = sort(-log10(results.df$p_value))

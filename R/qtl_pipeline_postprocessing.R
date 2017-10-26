@@ -89,16 +89,11 @@ MergeGeneInfo <- function(results.folder, gene.names.df, snp.info.df, multiple.t
 
 #' Only save top lead per gene - optionally only significant 
 #' @export
-#' @param results.folder full path to folder where results are stored
-#' @param gene.names.df dataframe containing snp info, e.g. rsID
-#' @param snp.info.df dataframe containing snp info, e.g. rsID
-#' @param multiple.testing.global method, can be BF (Bonferroni) or ST (Storey) 
+#' @param results.df dataframe containing results 
 #' @param significance.threshold at global level (optional)
-LeadSnpsOnly <- function(results.folder, gene.names.df, snp.info.df, multiple.testing.global = "ST", significance.threshold = 1){
-  results <- MergeGeneInfo(results.folder, gene.names.df, snp.info.df, multiple.testing.global = "ST")
-  results <- results[order(results$global_corr_p_value, results$feature_corr_p_value, results$p_value),]
+LeadSnpsOnly <- function(results.df, significance.threshold = 1){
+  results <- results.df[order(results.df$global_corr_p_value, results.df$feature_corr_p_value, results.df$p_value),]
   results <- results[which(results$global_corr_p_value < significance.threshold),]
   res <- results[-which(duplicated(results$feature)),]
   res
 }
-
