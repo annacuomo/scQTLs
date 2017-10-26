@@ -75,7 +75,7 @@ GetGenePosition <- function(gene.name, gene.info.file) {
 #' @param gene.name gene of interest 
 #' @param gene.info.file hdf5 file containing gene information
 #' @param snp.name SNP of interest within the Manhattan plot (optional)
-TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='') {
+TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='', col = c("corflowerblue","black")) {
   res1 <- MakeManhattanDataFrame(results.dfs[[1]], gene.name, gene.info.file)
   res2 <- MakeManhattanDataFrame(results.dfs[[2]], gene.name, gene.info.file)
   chrom <- res1[1,]$chrom
@@ -87,9 +87,9 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='') {
   # plot first Mannhattan
   plot(res1$pos, -log10(res1$p_value), main = paste0(gene.name, ", ", snp.name), 
        xlab = paste0("position on chromosome ",chrom), ylab = "-log10(pvalue)",
-       frame.plot = FALSE, cex = 0.6, ylim = c(bottom.rect, y.max), col = "cornflowerblue")
+       frame.plot = FALSE, cex = 0.6, ylim = c(bottom.rect, y.max), col = col[1])
   # plot second Mannhattan
-  points(res2$pos, -log10(res2$p_value),col = "black",cex = 0.6)
+  points(res2$pos, -log10(res2$p_value),col = col[2], cex = 0.6)
   # add axes
   axis(side = 2)
   snp.pos <- res1[res1$gdid == snp.name,]$pos
@@ -108,17 +108,17 @@ TwoManhattan <- function(results.dfs, gene.name, gene.info.file, snp.name='') {
 #' @export
 #' @import graphics
 #' @param results.df dataframe containing results, needs SNP p-values and permutations
-PlotQQ <- function(results.df) {
+PlotQQ <- function(results.df,  col = c("corflowerblue","black")) {
   # plot qqplot
   x = sort(-log10(runif(dim(results.df)[1], min = 0, max = 1)))
   y1 = sort(-log10(results.df$p_value))
   plot(x, y1, xlab = "-log10(expected pvalues)", ylab = "-log10(observed pvalues)",
-       frame.plot = FALSE, cex = 0.6, col = "cornflowerblue")
+       frame.plot = FALSE, cex = 0.6, col = col[1])
   # add axes
   axis(side = 2)
   # add permutation qqplot
   y2 = sort(-log10(results.df$permutation_0))
-  points(x , y2, cex = 0.6, col = "black")
+  points(x , y2, cex = 0.6, col = col[2])
   lines(x = c(0,7), y = c(0,7), col='firebrick')
 }
 

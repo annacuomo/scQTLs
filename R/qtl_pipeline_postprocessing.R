@@ -33,7 +33,7 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
     results["global_corr_p_value"] <- results$feature_corr_p_value*observed.features
     results$global_corr_p_value[results$global_corr_p_value > 1] <- 1
   }
-  results <- results[order(results$global_corr_p_value, decreasing = F),]
+  results <- results[order(results$global_corr_p_value, results$feature_corr_p_value, results$p_value ),]
   snp_info = as_data_frame(do.call("rbind", lapply(strsplit(results$snp_id, "_"), function(x) t(as.data.frame(x)))))
   colnames(snp_info) = c("chrom","pos","ref_allele","alt_allele")
   results = cbind(results,snp_info)
@@ -69,8 +69,8 @@ GetPerms <- function(results.folder) {
 MergePerms <- function(results.folder, multiple.testing.global = "ST"){
   results.df <- GetResults(results.folder, multiple.testing.global = "ST")
   perms.df <- GetPerms(results.folder)
-  results.with.permutations <- inner_join(results.df, perms.df, by = c("feature", "snp_id"))
-  results.with.permutations <- results.with.permutations[order(results.with.permutations$global_corr_p_value),]
+  ress <- inner_join(results.df, perms.df, by = c("feature", "snp_id"))
+  results.with.permutations <- ress[order(ress$global_corr_p_value, ress$feature_corr_p_value, ress$p_value), ]
   results.with.permutations
 }
 
@@ -96,7 +96,7 @@ MergeGeneInfo <- function(results.folder, gene.names.df, snp.info.df, multiple.t
 #' @param significance.threshold at global level (optional)
 LeadSnpsOnly <- function(results.folder, gene.names.df, snp.info.df, multiple.testing.global = "ST", significance.threshold = 1){
   results <- MergeGeneInfo(results.folder, gene.names.df, snp.info.df, multiple.testing.global = "ST")
-  results <- results[order(results$global_corr_p_value),]
+  results <- results[order(results$global_corr_p_value, results$feature_corr_p_value, results$p_value),]
   results <- results[which(results$global_corr_p_value < significance.threshold),]
   res <- results[-which(duplicated(results$feature)),]
   res

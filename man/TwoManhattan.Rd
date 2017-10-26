@@ -4,7 +4,8 @@
 \alias{TwoManhattan}
 \title{Generates overlapping Manhattan plots for two or more sets of results}
 \usage{
-TwoManhattan(results.dfs, gene.name, gene.info.file, snp.name = "")
+TwoManhattan(results.dfs, gene.name, gene.info.file, snp.name = "",
+  col = c("corflowerblue", "black"))
 }
 \arguments{
 \item{results.dfs}{list of dataframes containing results, all need SNP p-values and positions}
