@@ -42,6 +42,32 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
   results
 }
 
+#' Get results from qtl pipeline without correction 
+#' @export
+#' @param results.folder full path to folder where results are stored
+GetResultsWithoutCorrection <- function(results.folder) {
+  observed.features <- 0
+  results <- NULL
+  files.to.read <- list.files(results.folder,pattern = "qtl_results.*h5", full.names = T)
+  for ( i in files.to.read ) {
+    tmp <- h5dump(file = i)
+    if ( length(tmp) > 0 ) {
+      for ( j in names(tmp) ) { tmp[[j]][["feature"]] <- j }
+      observed.features = observed.features + length(tmp)
+      df <- bind_rows(tmp)
+      if ( nrow(df) > 0 ) { results = rbind(results,df) }
+    }
+  }
+  H5close()
+  results <- results[order(results$p_value),]
+  snp_info = as_data_frame(do.call("rbind", lapply(strsplit(results$snp_id, "_"), function(x) t(as.data.frame(x)))))
+  colnames(snp_info) = c("chrom","pos","ref_allele","alt_allele")
+  results = cbind(results,snp_info)
+  results$chrom = as.integer(results$chrom)
+  results$pos = as.integer(results$pos)
+  results
+}
+
 #' Get permutations from qtl pipeline for plotting purposes 
 #' @export
 #' @param results.folder full path to folder where results are stored
