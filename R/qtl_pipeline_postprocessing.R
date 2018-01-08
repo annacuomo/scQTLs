@@ -7,8 +7,7 @@
 #' @import qvalue
 #' @import dplyr
 #' @param results.folder full path to folder where results are stored
-#' @param multiple.testing.global method, can be BF (Bonferroni) or ST (Storey) 
-GetResults <- function(results.folder, multiple.testing.global = "ST") {
+GetResults <- function(results.folder) {
   observed.features <- 0
   results <- NULL
   files.to.read <- list.files(results.folder,pattern = "qtl_results.*h5", full.names = T)
@@ -22,18 +21,57 @@ GetResults <- function(results.folder, multiple.testing.global = "ST") {
     }
   }
   H5close()
-  colnames(results)[ which(colnames(results) == "corr_p_value") ] <- "feature_corr_p_value"
-  if ( length(which(is.na(results$feature_corr_p_value))) != 0 ) {
-    results <- results[-which(is.na(results$feature_corr_p_value)),]
+  if ( length(which(is.na(results$empirical_feature_p_value))) != 0 ) {
+    results <- results[-which(is.na(results$empirical_feature_p_value)),]
+  }
+  H5close()
+  results <- results[order(results$empirical_feature_p_value, results$p_value ),]
+  snp_info = as_data_frame(do.call("rbind", lapply(strsplit(results$snp_id, "_"), function(x) t(as.data.frame(x)))))
+  colnames(snp_info) = c("chrom","pos","ref_allele","alt_allele")
+  results = cbind(results,snp_info)
+  results$chrom = as.integer(results$chrom)
+  results$pos = as.integer(results$pos)
+  results
+}
+
+#' Get top results from qtl pipeline and summarize results 
+#' 
+#' All genes, one scan
+#'
+#' @export
+#' @import rhdf5
+#' @import qvalue
+#' @import dplyr
+#' @param results.folder full path to folder where results are stored
+#' @param multiple.testing.global multiple testing correction strategy
+GetTopResults <- function(results.folder, multiple.testing.global = "ST") {
+  observed.features <- 0
+  results <- NULL
+  files.to.read <- list.files(results.folder,pattern = "qtl_results.*h5", full.names = T)
+  for ( i in files.to.read ) {
+    tmp <- h5dump(file = i)
+    if ( length(tmp) > 0 ) {
+      for ( j in names(tmp) ) { tmp[[j]][["feature"]] <- j }
+      observed.features = observed.features + length(tmp)
+      df <- bind_rows(tmp)
+      if ( nrow(df) > 0 ) { results = rbind(results,df) }
+    }
+  }
+  H5close()
+  if ( length(which(is.na(results$empirical_feature_p_value))) != 0 ) {
+    results <- results[-which(is.na(results$empirical_feature_p_value)),]
   }
   ##Multiple testing
   if ( multiple.testing.global == "ST" ) {
-    results["global_corr_p_value"] <- qvalue(results$feature_corr_p_value)$qvalues
+    results <- results[order(results$empirical_feature_p_value, results$p_value ),]
+    #get best SNP per feature
+    results <- results[-which(duplicated(results$feature)),]
+    results["global_corr_p_value"] <- qvalue(results$empirical_feature_p_value)$qvalues
   } else if ( multiple.testing.global == "BF" ) {
-    results["global_corr_p_value"] <- results$feature_corr_p_value*observed.features
+    results["global_corr_p_value"] <- results$empirical_feature_p_value*observed.features
     results$global_corr_p_value[results$global_corr_p_value > 1] <- 1
   }
-  results <- results[order(results$global_corr_p_value, results$feature_corr_p_value, results$p_value ),]
+  results <- results[order(results$global_corr_p_value, results$empirical_feature_p_value, results$p_value ),]
   snp_info = as_data_frame(do.call("rbind", lapply(strsplit(results$snp_id, "_"), function(x) t(as.data.frame(x)))))
   colnames(snp_info) = c("chrom","pos","ref_allele","alt_allele")
   results = cbind(results,snp_info)
